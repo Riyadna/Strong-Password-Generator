@@ -1,5 +1,5 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
+import "./assets/password.jpg";
 
 export const PasswordGeneration = () => {
   const [length, setLength] = useState(8);
@@ -12,50 +12,51 @@ export const PasswordGeneration = () => {
 
   const generatePassword = () => {
     if (!uppercase && !lowercase && !number && !symbol) {
-      setErrorMessage(
-        "Please select at least one option to generate a password."
-      );
+      setErrorMessage("Please select at least one option to generate a password.");
       return;
     }
 
-    const selectedTypesCount = [uppercase, lowercase, number, symbol].filter(
-      Boolean
-    ).length;
+    const selectedTypesCount = [uppercase, lowercase, number, symbol].filter(Boolean).length;
     if (length < selectedTypesCount) {
-      setErrorMessage(
-        `Password length must be at least ${selectedTypesCount} to include all selected character types.`
-      );
+      setErrorMessage(`Password length must be at least ${selectedTypesCount} to include all selected character types.`);
       return;
     }
 
     setErrorMessage("");
 
     let charSet = "";
-    let generatedPassword = "";
+    let generatedPasswordArray = []; // Initialize as an array
+
+    const characterTypes = [];
 
     if (uppercase) {
-      charSet += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-      generatedPassword += charSet[Math.floor(Math.random() * 26)];
+      characterTypes.push("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     }
     if (lowercase) {
-      charSet += "abcdefghijklmnopqrstuvwxyz";
-      generatedPassword += charSet[Math.floor(Math.random() * 26) + 26];
+      characterTypes.push("abcdefghijklmnopqrstuvwxyz");
     }
     if (number) {
-      charSet += "1234567890";
-      generatedPassword += charSet[Math.floor(Math.random() * 10) + 52];
+      characterTypes.push("1234567890");
     }
     if (symbol) {
-      charSet += "!$%^&*()_-=+:@#";
-      generatedPassword += charSet[Math.floor(Math.random() * 14) + 62];
+      characterTypes.push("!$%^&*()_-=+:@#");
     }
 
-    for (let i = generatedPassword.length; i < length; i++) {
+    // Ensure at least one character from each selected type is in the password
+    characterTypes.forEach((type) => {
+      generatedPasswordArray.push(type[Math.floor(Math.random() * type.length)]);
+    });
+
+    charSet = characterTypes.join("");
+
+    // Fill the remaining length with random characters from the combined set
+    for (let i = generatedPasswordArray.length; i < length; i++) {
       let randomIndex = Math.floor(Math.random() * charSet.length);
-      generatedPassword += charSet[randomIndex];
+      generatedPasswordArray.push(charSet[randomIndex]);
     }
 
-    setPassword(generatedPassword.split('').sort(() => 0.5 - Math.random()).join(''));
+    // Shuffle the generated password array and convert it back to a string
+    setPassword(generatedPasswordArray.sort(() => 0.5 - Math.random()).join(""));
   };
 
   const copyToClipboard = () => {
@@ -72,7 +73,7 @@ export const PasswordGeneration = () => {
           <input
             type="number"
             value={length}
-            onChange={(e) => setLength(e.target.value)}
+            onChange={(e) => setLength(parseInt(e.target.value))}
           />
         </div>
         <div className="errorMessage">{errorMessage}</div>
@@ -114,7 +115,7 @@ export const PasswordGeneration = () => {
             <label htmlFor="symbol">Include Symbol</label>
           </div>
         </div>
-        <button onClick={generatePassword}>Generagte Password</button>
+        <button onClick={generatePassword}>Generate Password</button>
         <div className="result">
           <input type="text" readOnly value={password} />
           <button onClick={copyToClipboard}>Copy</button>
