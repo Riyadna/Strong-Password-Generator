@@ -8,26 +8,60 @@ export const PasswordGeneration = () => {
   const [number, setNumber] = useState(false);
   const [symbol, setSymbol] = useState(false);
   const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   const generatePassword = () => {
-    let charSet = "";
-    if (uppercase) charSet += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    if (lowercase) charSet += "abcdefghijklmnopqrstuvwxyz";
-    if (number) charSet += "1234567890";
-    if (symbol) charSet += "!$%^&*()_-=+:@#";
+    if (!uppercase && !lowercase && !number && !symbol) {
+      setErrorMessage(
+        "Please select at least one option to generate a password."
+      );
+      return;
+    }
 
+    const selectedTypesCount = [uppercase, lowercase, number, symbol].filter(
+      Boolean
+    ).length;
+    if (length < selectedTypesCount) {
+      setErrorMessage(
+        `Password length must be at least ${selectedTypesCount} to include all selected character types.`
+      );
+      return;
+    }
+
+    setErrorMessage("");
+
+    let charSet = "";
     let generatedPassword = "";
-    for (let i = 0; i < length; i++) {
+
+    if (uppercase) {
+      charSet += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      generatedPassword += charSet[Math.floor(Math.random() * 26)];
+    }
+    if (lowercase) {
+      charSet += "abcdefghijklmnopqrstuvwxyz";
+      generatedPassword += charSet[Math.floor(Math.random() * 26) + 26];
+    }
+    if (number) {
+      charSet += "1234567890";
+      generatedPassword += charSet[Math.floor(Math.random() * 10) + 52];
+    }
+    if (symbol) {
+      charSet += "!$%^&*()_-=+:@#";
+      generatedPassword += charSet[Math.floor(Math.random() * 14) + 62];
+    }
+
+    for (let i = generatedPassword.length; i < length; i++) {
       let randomIndex = Math.floor(Math.random() * charSet.length);
       generatedPassword += charSet[randomIndex];
     }
-    setPassword(generatedPassword);
+
+    setPassword(generatedPassword.split('').sort(() => 0.5 - Math.random()).join(''));
   };
 
-  const copyToClipboard=()=>{
+  const copyToClipboard = () => {
     navigator.clipboard.writeText(password);
     alert("Password Copied");
-  }
+  };
 
   return (
     <div className="container">
@@ -41,8 +75,9 @@ export const PasswordGeneration = () => {
             onChange={(e) => setLength(e.target.value)}
           />
         </div>
+        <div className="errorMessage">{errorMessage}</div>
         <div className="condition">
-          <div className="uppe rcase">
+          <div className="uppercase">
             <input
               type="checkbox"
               id="uppercase"

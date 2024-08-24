@@ -52,6 +52,13 @@ h3 {
   outline: none;
 }
 
+.errorMessage{
+  color: red;
+  margin-top: 10px;
+  font-size: 15px;
+  width: 500px;
+}
+
 .condition {
   display: flex;
   flex-direction: column;
